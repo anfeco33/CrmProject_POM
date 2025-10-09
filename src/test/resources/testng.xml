@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="AnhTester CRM Test Suite" parallel="tests" thread-count="2">
+    
+    <listeners>
+        <listener class-name="com.anhtester.utils.TestListener"/>
+    </listeners>
+
+    <test name="Login Tests">
+        <classes>
+            <class name="com.anhtester.tests.LoginTest"/>
+        </classes>
+    </test>
+
+    <test name="Customer Tests">
+        <classes>
+            <class name="com.anhtester.tests.CustomerTest"/>
+        </classes>
+    </test>
+
+    <test name="Project Tests">
+        <classes>
+            <class name="com.anhtester.tests.ProjectTest"/>
+        </classes>
+    </test>
+
+    <test name="Task Tests">
+        <classes>
+            <class name="com.anhtester.tests.TaskTest"/>
+        </classes>
+    </test>
+
+</suite>
