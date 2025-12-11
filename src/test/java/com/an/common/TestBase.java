@@ -29,12 +29,6 @@ public abstract class TestBase extends BaseSetup {
         Assert.assertTrue(loginPage.isAt(), "Should be on Login page before each test");
     }
 
-    @AfterMethod
-    public void takeScreenshot(ITestResult result) {
-        // Screenshot capture is now handled centrally in TestListener.onTestFailure
-        // to avoid creating duplicate images and race conditions.
-    }
-
     @AfterMethod(alwaysRun = true)
     public void commonAfterEach() {
         CaptureHelper.stopRecord();

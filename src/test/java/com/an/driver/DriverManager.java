@@ -17,6 +17,10 @@ public class DriverManager {
         DriverManager.driver.set(driver);
     }
 
+    public static void resetImplicitlyWait() {
+        DriverManager.driver.get().manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(0));
+    }
+
     public static void quit() {
         DriverManager.driver.get().quit();
         driver.remove();

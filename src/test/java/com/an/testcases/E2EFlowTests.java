@@ -4,6 +4,7 @@ import com.an.common.TestBase;
 import com.an.helpers.PropertiesHelper;
 import com.an.pages.CustomerPage;
 import com.an.pages.DashboardPage;
+import com.an.pages.ProjectPage;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,5 +41,12 @@ public class E2EFlowTests extends TestBase {
 
         // Step 6: Upload a file to the customer's attachments
         Assert.assertTrue(customerPage.uploadFile(), "File should be uploaded successfully for the customer");
+
+        // Step 7: Go to Projects page
+        ProjectPage projectPage = dashboard.menuProjectClick();
+        Assert.assertTrue(projectPage.isAt(), "Should be on Projects page");
+
+        // Step 8: Open Create New Project form
+
     }
 }

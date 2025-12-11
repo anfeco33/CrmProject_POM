@@ -5,6 +5,7 @@ import com.an.helpers.PropertiesHelper;
 import com.an.helpers.WebElementHelper;
 import com.an.pages.CustomerPage;
 import com.an.pages.DashboardPage;
+import com.an.pages.ProjectPage;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -40,5 +41,11 @@ public abstract class BasePage {
         webElementHelper.clickElement(menuCustomers);
 
         return new CustomerPage();
+    }
+
+    public ProjectPage menuProjectClick() {
+        webElementHelper.clickElement(menuProjects);
+
+        return new ProjectPage();
     }
 }

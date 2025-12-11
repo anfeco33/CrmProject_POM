@@ -112,10 +112,10 @@ public class CustomerPage extends BasePage {
         // Build absolute path to test file inside repo
         String absolutePath;
         try {
-            java.io.File f = new java.io.File(SystemHelper.getCurrentDir() + "src\\test\\java\\com\\an\\dataset\\uploadFileTesting.txt");
+            java.io.File f = new java.io.File(SystemHelper.getCurrentDir() + "src\\test\\java\\com\\an\\dataset\\uploadFileTesting.docx");
             absolutePath = f.getAbsolutePath();
         } catch (Exception ex) {
-            absolutePath = SystemHelper.getCurrentDir() + "src\\test\\java\\com\\an\\dataset\\uploadFileTesting.txt";
+            absolutePath = SystemHelper.getCurrentDir() + "src\\test\\java\\com\\an\\dataset\\uploadFileTesting.docx";
         }
 
         // Prefer direct sendKeys to the file input if possible (more reliable than Robot/dialog)
@@ -157,8 +157,8 @@ public class CustomerPage extends BasePage {
 
     private boolean verifyFileUploadSuccess() {
         webElementHelper.waitForPageLoaded();
-        // Đợi link tên file xuất hiện trong bảng
-        By fileNameLink = By.xpath("//table[@id='DataTables_Table_0']//a[normalize-space()='uploadFileTesting.txt']");
+        // verify = chờ link tên file xuất hiện trong bảng
+        By fileNameLink = By.xpath("//table[@id='DataTables_Table_0']//a[normalize-space()='uploadFileTesting.docx']");
         long end = System.currentTimeMillis() + 12000; // tối đa ~12s
         while (System.currentTimeMillis() < end) {
             try {

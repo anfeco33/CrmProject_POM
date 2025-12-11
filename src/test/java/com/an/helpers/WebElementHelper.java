@@ -3,10 +3,7 @@ package com.an.helpers;
 import com.an.driver.DriverManager;
 import com.an.reports.ExtentTestManager;
 import com.aventstack.extentreports.Status;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -49,7 +46,7 @@ public class WebElementHelper {
     public void clickElement(WebElement e) {
         wait = new WebDriverWait(DriverManager.getDriver(), Duration.ofSeconds(TIMEOUT), Duration.ofMillis(500));
 
-        wait.until(ExpectedConditions.visibilityOf(e));
+        waitUntilClickable(e, Duration.ofSeconds(TIMEOUT));
         e.click();
         try {
             ExtentTestManager.logMessage(Status.PASS, "Click element: " + safeElementToString(e));
@@ -142,10 +139,15 @@ public class WebElementHelper {
     }
 
     public void clickElement(By by) {
-        WebElement e = getWebElement(by);
-        clickElement(e);
         try {
+            wait = new WebDriverWait(DriverManager.getDriver(), Duration.ofSeconds(TIMEOUT));
+
+            WebElement e = wait.until(ExpectedConditions.elementToBeClickable(by));
+            e.click();
             ExtentTestManager.logMessage(Status.PASS, "Click element " + by);
+        } catch (StaleElementReferenceException ex) {
+            WebElement e = DriverManager.getDriver().findElement(by);
+            e.click();
         } catch (Exception ignored) {}
     }
 
@@ -221,6 +223,39 @@ public class WebElementHelper {
         } catch (Exception ignored) {}
         return ok;
     }
+
+    public boolean verifyElementTextContains(By by, String textValue) {
+        WebElement e = getWebElement(by);
+        boolean ok = e.getText().contains(textValue);
+        try {
+            ExtentTestManager.logMessage(ok ? Status.PASS : Status.INFO,
+                    (ok ? "Verify text contains PASSED for " : "Verify text contains for ") + by + " with value '" + textValue + "'");
+        } catch (Exception ignored) {}
+        return ok;
+    }
+
+    // region Frame helpers
+    public boolean switchToFrame(By by) {
+        try {
+            WebElement frame = getWebElement(by);
+            new WebDriverWait(DriverManager.getDriver(), Duration.ofSeconds(TIMEOUT)).until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frame));
+            try { ExtentTestManager.logMessage(Status.INFO, "Switched to frame: " + by); } catch (Exception ignored) {}
+            return true;
+        } catch (Exception ex) {
+            LOG.warn("[switchToFrame] Failed to switch to frame {}: {}", by, ex.toString());
+            return false;
+        }
+    }
+
+    public void switchToDefaultContent() {
+        try {
+            DriverManager.getDriver().switchTo().defaultContent();
+            try { ExtentTestManager.logMessage(Status.INFO, "Switched to default content"); } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            LOG.debug("[switchToDefaultContent] Ignored: {}", ex.toString());
+        }
+    }
+    // endregion
     // endregion
 
     public boolean verifyUrl(String url) {

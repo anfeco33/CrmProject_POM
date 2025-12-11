@@ -13,7 +13,8 @@
 <!--            <class name="com.an.testcases.LoginTests" />-->
 <!--            <class name="com.an.testcases.DashboardTests" />-->
 <!--            <class name="com.an.testcases.CustomerTests" />-->
-            <class name="com.an.testcases.E2EFlowTests" />
+                <class name="com.an.testcases.ProjectTests" />
+<!--            <class name="com.an.testcases.E2EFlowTests" />-->
 		</classes>
 	</test>
 

@@ -70,6 +70,8 @@ public class BaseSetup {
 
         // Thêm các đối số dòng lệnh để vô hiệu hóa triệt để các tính năng liên quan
         options.addArguments(Arrays.asList(
+//                "--headless", // Ko hiện UI, dùng cho CI/CD
+//                "--window-size=1920,1080", // Giả lập màn hình
                 "--disable-features=PasswordManagerUI", // Tắt UI trình quản lý mật khẩu
                 "--disable-save-password-bubble", // Tắt bong bóng "Lưu mật khẩu"
                 "--password-store=basic", // Dùng kho lưu trữ mật khẩu cơ bản
@@ -173,6 +175,7 @@ public class BaseSetup {
             throw new RuntimeException(e);
         }
         if (DriverManager.getDriver() != null) {
+//            DriverManager.resetImplicitlyWait();
             DriverManager.quit();
         }
     }

@@ -11,11 +11,11 @@ public class CustomerTests extends TestBase {
     private CustomerPage customerPage;
     private String customerName = "CM Co., Ltd";
 
-//    @Test(priority = 1)
-//    public void testCustomerFormNavigation() throws Exception {
-//        customerPage = loginPage.login("admin@example.com", "123456").menuCustomerClick();
-//        Assert.assertTrue(customerPage.addNewCustomerClick(), "Add New Customer button should navigate to the Add Customer page");
-//    }
+    @Test(enabled = false, priority = 1)
+    public void testCustomerFormNavigation() throws Exception {
+        customerPage = loginPage.login("admin@example.com", "123456").menuCustomerClick();
+        Assert.assertTrue(customerPage.addNewCustomerClick(), "Add New Customer button should navigate to the Add Customer page");
+    }
 
     @Test
     public void testCreateCustomer() throws Exception {
