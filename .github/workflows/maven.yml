@@ -22,11 +22,36 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
+      # Cài Edge WebDriver bằng Chocolatey (đúng tên gói)
       - name: Install Microsoft Edge WebDriver (Chocolatey)
         shell: pwsh
         run: |
-          choco install microsoft-edge-driver -y
+          choco install microsoft-edgewebdriver -y
           echo "$env:ChocolateyInstall\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      # Fallback: nếu bước trên fail, thử winget
+      - name: Install Microsoft Edge WebDriver (winget fallback)
+        if: failure()
+        shell: pwsh
+        run: |
+          winget install --id Microsoft.EdgeWebDriver -e --accept-source-agreements --accept-package-agreements
+          $edgeDriver = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Recurse -Filter msedgedriver.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($edgeDriver) {
+            $dir = Split-Path $edgeDriver.FullName -Parent
+            echo $dir | Out-File -FilePath $env:GITHUB_PATH -Append
+          }
+
+      # Xác thực msedgedriver đã có trên PATH
+      - name: Verify msedgedriver in PATH
+        shell: pwsh
+        run: |
+          $cmd = Get-Command msedgedriver -ErrorAction SilentlyContinue
+          if (-not $cmd) {
+            Write-Error "msedgedriver not found on PATH after installation attempts."
+          } else {
+            Write-Host "msedgedriver found at:" $cmd.Source
+            msedgedriver --version
+          }
 
       - name: Run Automation Tests on Edge (Windows)
         run: mvn -B -DskipTests=false -Dbrowser=edge test
