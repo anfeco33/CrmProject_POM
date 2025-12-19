@@ -120,10 +120,7 @@ public class BaseSetup {
     }
 
     private static WebDriver initEdgeDriver() {
-        System.out.println("Launching Edge browser (WebDriverManager/Selenium Manager)...");
-
-        // Đảm bảo driver được quản lý tự động
-        WebDriverManager.edgedriver().setup();
+        System.out.println("Launching Edge browser (prefer PATH, fallback WDM)...");
 
         EdgeOptions options = new EdgeOptions();
 
@@ -135,11 +132,29 @@ public class BaseSetup {
         prefs.put("autofill.profile_enabled", false);
         options.setExperimentalOption("prefs", prefs);
 
+        // Headless khi CI để ổn định
         if (System.getenv("CI") != null) {
             options.addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
         }
 
-        return new EdgeDriver(options);
+        // Ưu tiên EdgeDriver từ PATH
+        String onPath = findOnPath("msedgedriver.exe");
+        if (onPath != null) {
+            System.setProperty("webdriver.edge.driver", onPath);
+            System.out.println("[Edge Setup] Using msedgedriver from PATH: " + onPath);
+            return new EdgeDriver(options);
+        }
+
+        // Fallback: dùng WebDriverManager (cần mạng). fail nếu DNS/CDN sự cố
+        System.out.println("[Edge Setup] msedgedriver.exe not found on PATH. Falling back to WebDriverManager...");
+        try {
+            io.github.bonigarcia.wdm.WebDriverManager.edgedriver().setup();
+            return new EdgeDriver(options);
+        } catch (Exception e) {
+            System.err.println("[Edge Setup] WebDriverManager setup failed: " + e.getMessage());
+            System.err.println("Hint: Trên CI, hãy đảm bảo bước cài đặt Edge WebDriver (Chocolatey) đã chạy thành công.");
+            throw e;
+        }
     }
 
 //    private static WebDriver initEdgeDriver() {

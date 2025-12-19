@@ -1,4 +1,4 @@
-name: Java Selenium CI with Maven
+name: Java Selenium CI with Maven (Windows + Edge)
 
 on:
   push:
@@ -21,6 +21,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+
+      - name: Install Microsoft Edge WebDriver (Chocolatey)
+        shell: pwsh
+        run: |
+          choco install microsoft-edge-driver -y
+          echo "$env:ChocolateyInstall\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
       - name: Run Automation Tests on Edge (Windows)
         run: mvn -B -DskipTests=false -Dbrowser=edge test
