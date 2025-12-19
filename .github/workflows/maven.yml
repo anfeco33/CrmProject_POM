@@ -5,10 +5,11 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_dispatch: {}
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -21,8 +22,8 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      - name: Run Automation Tests
-        run: mvn -B -DskipTests=false test
+      - name: Run Automation Tests on Edge (Windows)
+        run: mvn -B -DskipTests=false -Dbrowser=edge test
 
       - name: Upload test reports
         if: always()

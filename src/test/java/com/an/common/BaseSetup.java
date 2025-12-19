@@ -23,6 +23,7 @@ import java.util.Map;
 public class BaseSetup {
 
     private String appURL;
+    boolean isCI = System.getenv("CI") != null;
 
     protected String getAppURL() {
         return appURL;
@@ -70,7 +71,6 @@ public class BaseSetup {
 
         // Thêm các đối số dòng lệnh để vô hiệu hóa triệt để các tính năng liên quan
         options.addArguments(Arrays.asList(
-//                "--headless", // Ko hiện UI, dùng cho CI/CD
 //                "--window-size=1920,1080", // Giả lập màn hình
                 "--disable-features=PasswordManagerUI", // Tắt UI trình quản lý mật khẩu
                 "--disable-save-password-bubble", // Tắt bong bóng "Lưu mật khẩu"
@@ -97,6 +97,10 @@ public class BaseSetup {
         FirefoxOptions options = new FirefoxOptions();
         options.setProfile(profile);
 
+        if (System.getenv("CI") != null) {
+            options.addArguments("-headless");
+        }
+
         WebDriver driver = new FirefoxDriver(options);
         return driver;
     }
@@ -116,11 +120,14 @@ public class BaseSetup {
     }
 
     private static WebDriver initEdgeDriver() {
-        System.out.println("Launching Edge browser (PATH mode)...");
+        System.out.println("Launching Edge browser (WebDriverManager/Selenium Manager)...");
+
+        // Đảm bảo driver được quản lý tự động
+        WebDriverManager.edgedriver().setup();
 
         EdgeOptions options = new EdgeOptions();
 
-        // tùy chỉnh Edge (prefs)
+        // Tùy chỉnh Edge (prefs)
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("credentials_enable_service", false);
         prefs.put("profile.password_manager_enabled", false);
@@ -128,17 +135,37 @@ public class BaseSetup {
         prefs.put("autofill.profile_enabled", false);
         options.setExperimentalOption("prefs", prefs);
 
-        // msedgedriver.exe từ PATH
-        String driverPath = findOnPath("msedgedriver.exe");
-        if (driverPath == null || driverPath.isEmpty()) {
-            throw new RuntimeException(
-                    "msedgedriver.exe not found on PATH. Please place msedgedriver.exe into a folder listed in PATH (e.g., C:\\\\WebDrivers) and restart your IDE/terminal.");
+        if (System.getenv("CI") != null) {
+            options.addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
         }
-        System.setProperty("webdriver.edge.driver", driverPath);
-        System.out.println("[Edge Setup] Using msedgedriver from PATH: " + driverPath);
 
         return new EdgeDriver(options);
     }
+
+//    private static WebDriver initEdgeDriver() {
+//        System.out.println("Launching Edge browser (PATH mode)...");
+//
+//        EdgeOptions options = new EdgeOptions();
+//
+//        // tùy chỉnh Edge (prefs)
+//        Map<String, Object> prefs = new HashMap<>();
+//        prefs.put("credentials_enable_service", false);
+//        prefs.put("profile.password_manager_enabled", false);
+//        prefs.put("profile.password_manager_leak_detection", false);
+//        prefs.put("autofill.profile_enabled", false);
+//        options.setExperimentalOption("prefs", prefs);
+//
+//        // msedgedriver.exe từ PATH
+//        String driverPath = findOnPath("msedgedriver.exe");
+//        if (driverPath == null || driverPath.isEmpty()) {
+//            throw new RuntimeException(
+//                    "msedgedriver.exe not found on PATH. Please place msedgedriver.exe into a folder listed in PATH (e.g., C:\\\\WebDrivers) and restart your IDE/terminal.");
+//        }
+//        System.setProperty("webdriver.edge.driver", driverPath);
+//        System.out.println("[Edge Setup] Using msedgedriver from PATH: " + driverPath);
+//
+//        return new EdgeDriver(options);
+//    }
 
     // Chạy hàm này đầu tiên khi class này được gọi
     @Parameters({ "browserType", "appURL" })
@@ -147,8 +174,17 @@ public class BaseSetup {
                                         @org.testng.annotations.Optional("https://crm.anhtester.com/admin/authentication") String appURL) {
             this.appURL = appURL;
 
-            String configBrowser = PropertiesHelper.getValue("browser");
-            browserType = (configBrowser == null || configBrowser.isEmpty()) ? browserType : configBrowser;
+            // Ưu tiên trc từ dòng lệnh (CI)
+            String sysBrowser = System.getProperty("browser");
+            if (sysBrowser != null && !sysBrowser.isEmpty()) {
+                browserType = sysBrowser;
+            } else {
+                // Ưu tiên 2 đọc từ file cấu hình
+                String configBrowser = PropertiesHelper.getValue("browser");
+                if (configBrowser != null && !configBrowser.isEmpty()) {
+                    browserType = configBrowser;
+                }
+            }
 
             WebDriver driver = createDriver(browserType.trim().toLowerCase());
             DriverManager.setDriver(driver); // Set to ThreadLocal
